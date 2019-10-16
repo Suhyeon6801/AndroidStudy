@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        style="@style/AppTheme"
+        android:id="@+id/Text1"
+        android:text="선택을 시작하겠습니까?" />
+    <CheckBox
+        style="@style/AppTheme"
+        android:id="@+id/ChkAgree"
+        android:text="시작함"/>
+    <TextView
+        style="@style/AppTheme"
+        android:id="@+id/Text2"
+        android:text="좋아하는 애완동물은?"
+        android:visibility="invisible"/>
+    <RadioGroup
+        style="@style/AppTheme"
+        android:id="@+id/Rgroup1"
+        android:visibility="invisible">
+        <RadioButton
+            style="@style/AppTheme"
+            android:id="@+id/RdoDog"
+            android:text="강아지"/>
+        <RadioButton
+            style="@style/AppTheme"
+            android:id="@+id/RdoRabbit"
+            android:text="토끼"/>
+        <RadioButton
+            style="@style/AppTheme"
+            android:id="@+id/RdoCat"
+            android:text="고양이"/>
+    </RadioGroup>
+    <Button
+        style="@style/AppTheme"
+        android:id="@+id/BtnOK"
+        android:text="선택완료"
+        android:visibility="invisible"/>
+    <ImageView
+        style="@style/AppTheme"
+        android:id="@+id/ImgPet"
+        android:visibility="invisible"/>
+
+
+</LinearLayout>
