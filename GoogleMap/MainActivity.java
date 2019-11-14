@@ -1,106 +1,74 @@
-package com.cookandroid.project13_1;
+package com.cookandroid.cookmap;
 
-import android.Manifest;
-import android.app.Activity;
-import android.media.MediaPlayer;
-import android.os.Environment;
-import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.ListView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
+import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuItem;
 
-import org.w3c.dom.Text;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.GroundOverlayOptions;
+import com.google.android.gms.maps.model.LatLng;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-public class MainActivity extends AppCompatActivity {
-    ListView listViewMP3;
-    Button btnPlay, btnStop;
-    TextView tvMP3;
-    ProgressBar pbMP3;
-
-    ArrayList<String> mp3List;
-    String selectedMP3;
-
-    String mp3Path=Environment.getExternalStorageDirectory().getPath()+"/";
-    MediaPlayer mPlayer;
+public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
+    GoogleMap gMap;
+    MapFragment mapFrag;
+    GroundOverlayOptions videoMark;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        setTitle("간단 MP3 플레이어");
-        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MODE_PRIVATE);
+        setTitle("Google 지도 활용");
 
-        mp3List=new ArrayList<String>();
+        mapFrag = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
+        mapFrag.getMapAsync(this);
+    }
 
-        File[] listFiles=new File(mp3Path).listFiles();
-        String fileName, extName;
-        for(File file:listFiles){
-            fileName=file.getName();
-            extName=fileName.substring(fileName.length()-3);
-            if(extName.equals((String)"mp3"))
-                mp3List.add(fileName);
+    @Override
+    public void onMapReady(GoogleMap map) {
+        gMap = map;
+        gMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
+        gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(37.568256, 126.897240), 15));
+        gMap.getUiSettings().setZoomControlsEnabled(true);
+        gMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng point) {
+                videoMark = new GroundOverlayOptions().image(
+                        BitmapDescriptorFactory
+                                .fromResource(R.drawable.presence_video_busy))
+                        .position(point, 100f, 100f);
+                gMap.addGroundOverlay(videoMark);
+            }
+        });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        menu.add(0, 1, 0, "위성 지도");
+        menu.add(0, 2, 0, "일반 지도");
+        menu.add(0, 3, 0, "월드컵경기장 바로가기");
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case 1:
+                gMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+                return true;
+            case 2:
+                gMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                return true;
+            case 3:
+                gMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(
+                        37.568256, 126.897240), 15));
+                return true;
         }
-
-        listViewMP3=(ListView)findViewById(R.id.listViewMP3);
-        ArrayAdapter<String>adapter=new ArrayAdapter<String>(this, android.R.layout.simple_list_item_single_choice,mp3List);
-        listViewMP3.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-        listViewMP3.setAdapter(adapter);
-        listViewMP3.setItemChecked(0,true);
-
-        listViewMP3.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    public void onItemClick(AdapterView<?> arg0, View arg1,
-                                            int arg2, long arg3) {
-                        selectedMP3 = mp3List.get(arg2);
-                    }
-                });
-
-        selectedMP3 = mp3List.get(0);
-
-        btnPlay=(Button)findViewById(R.id.btnPlay);
-        btnStop=(Button)findViewById(R.id.btnStop);
-        tvMP3=(TextView)findViewById(R.id.tvMP3);
-        pbMP3=(ProgressBar) findViewById(R.id.pbMP3);
-
-        btnPlay.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v) {
-                try{
-                    mPlayer=new MediaPlayer();
-                    mPlayer.setDataSource(mp3Path+selectedMP3);
-                    mPlayer.prepare();
-                    mPlayer.start();
-                    btnPlay.setClickable(false);
-                    btnStop.setClickable(true);
-                    tvMP3.setText("실행중인 음악 : "+selectedMP3);
-                    pbMP3.setVisibility(View.VISIBLE);
-                }catch(IOException e){
-                }
-            }
-        });
-
-        btnStop.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v) {
-                mPlayer.stop();
-                mPlayer.reset();
-                btnPlay.setClickable(true);
-                btnStop.setClickable(false);
-                tvMP3.setText("실행중인 음악 : "+selectedMP3);
-                pbMP3.setVisibility(View.VISIBLE);
-            }
-        });
-
-        btnStop.setClickable(false);
+        return false;
     }
 }
